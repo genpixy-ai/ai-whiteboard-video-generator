@@ -1,0 +1,64 @@
+# Copy this file to .github/workflows/daily-video.yml in your own repository,
+# next to a topics.csv (see topics.example.csv). Every day it makes the next
+# unmade topic, keeps the files as a workflow artifact, and remembers finished
+# topics by committing their small video.json files.
+#
+# Secrets (Settings -> Secrets and variables -> Actions):
+#   GENPIXY_API_KEY     required, from https://www.genpixy.com/account/api-keys
+#   YOUTUBE_TOKEN_JSON  optional, the contents of the token file that
+#                       `whiteboard-video youtube login` saves; uploads each video
+name: Daily whiteboard video
+
+on:
+  schedule:
+    - cron: "0 1 * * *" # every day at 01:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: daily-video
+  cancel-in-progress: false
+
+jobs:
+  video:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      GENPIXY_API_KEY: ${{ secrets.GENPIXY_API_KEY }}
+      YOUTUBE_TOKEN_JSON: ${{ secrets.YOUTUBE_TOKEN_JSON }}
+      YOUTUBE_PRIVACY: private # private, unlisted, or public
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+
+      - name: Make the next video
+        run: |
+          args=(--limit 1 --yes --out videos)
+          if [ -n "$YOUTUBE_TOKEN_JSON" ]; then
+            printf '%s' "$YOUTUBE_TOKEN_JSON" > "$RUNNER_TEMP/youtube-token.json"
+            export YOUTUBE_TOKEN_FILE="$RUNNER_TEMP/youtube-token.json"
+            args+=(--youtube "$YOUTUBE_PRIVACY")
+          fi
+          uvx --from "ai-whiteboard-video-generator[youtube] @ git+https://github.com/genpixy-ai/ai-whiteboard-video-generator" \
+            whiteboard-video batch topics.csv "${args[@]}"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: videos-${{ github.run_number }}
+          path: |
+            videos/**/video.mp4
+            videos/**/subtitles.srt
+            videos/**/thumbnail.png
+          if-no-files-found: ignore
+          retention-days: 30
+
+      - name: Remember finished topics
+        run: |
+          git add videos/*/video.json videos/*/youtube.json 2>/dev/null || true
+          if git diff --cached --quiet; then exit 0; fi
+          git -c user.name="github-actions[bot]" \
+              -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+              commit -m "Add today's video"
+          git push

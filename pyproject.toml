@@ -1,0 +1,80 @@
+[project]
+name = "ai-whiteboard-video-generator"
+version = "0.1.0"
+description = "AI whiteboard animation video generator: turn a topic or script into a narrated explainer video (MP4, subtitles, thumbnail) from the command line. Batch faceless YouTube and Shorts automation."
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.12"
+authors = [{ name = "GenPixy AI", email = "support@genpixy.com" }]
+keywords = [
+    "whiteboard animation",
+    "ai video generator",
+    "text to video",
+    "script to video",
+    "explainer video",
+    "faceless youtube",
+    "youtube automation",
+    "youtube shorts",
+    "doodle video",
+    "mcp",
+]
+classifiers = [
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: End Users/Desktop",
+    "Programming Language :: Python :: 3",
+    "Topic :: Multimedia :: Video",
+]
+dependencies = [
+    "httpx>=0.28",
+    "msgspec>=0.19",
+    "rich>=14",
+    "typer>=0.16",
+]
+
+[project.optional-dependencies]
+youtube = [
+    "google-api-python-client>=2.170",
+    "google-auth-oauthlib>=1.2",
+]
+
+[project.urls]
+Homepage = "https://www.genpixy.com/?utm_source=github&utm_medium=pypi&utm_campaign=ai-whiteboard-video-generator"
+Documentation = "https://www.genpixy.com/api/docs"
+Source = "https://github.com/genpixy-ai/ai-whiteboard-video-generator"
+
+[project.scripts]
+whiteboard-video = "whiteboard_video.cli:main"
+
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/whiteboard_video"]
+
+[dependency-groups]
+dev = [
+    "basedpyright>=1.29",
+    "pytest>=8.4",
+    "ruff>=0.12",
+]
+
+[tool.uv]
+# Supply-chain guard: resolve only releases that are at least 14 days old.
+exclude-newer = "2026-10-20T00:00:00Z"
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM", "RUF"]
+
+[tool.basedpyright]
+include = ["src"]
+typeCheckingMode = "standard"
+pythonVersion = "3.12"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
