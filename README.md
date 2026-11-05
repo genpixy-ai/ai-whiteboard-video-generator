@@ -1,5 +1,7 @@
 # AI Whiteboard Video Generator
 
+<a href="https://www.genpixy.com/?utm_source=github&utm_medium=readme_banner&utm_campaign=ai-whiteboard-video-generator"><img src="docs/genpixy-banner.png" alt="GenPixy AI: make whiteboard and cartoon explainer videos with AI. Perfect for faceless content creation or education. Try GenPixy free at genpixy.com" width="100%"></a>
+
 [![CI](https://github.com/genpixy-ai/ai-whiteboard-video-generator/actions/workflows/ci.yml/badge.svg)](https://github.com/genpixy-ai/ai-whiteboard-video-generator/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Python 3.12+](https://img.shields.io/badge/python-3.12%2B-blue.svg)](pyproject.toml)
